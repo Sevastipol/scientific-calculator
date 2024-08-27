@@ -1,6 +1,7 @@
 (function (window) {
     'use strict';
-    var Calc = document.querySelector('.calc-main'),
+    let storage = {}
+    let Calc = document.querySelector('.calc-main'),
         display = Calc.querySelector('.calc-display span'),
         notification = Calc.querySelector(".notification"),
         radDeg = Calc.querySelector('.calc-rad'),
@@ -134,40 +135,95 @@
 
     calculator[0] = new Calculator();
 
-    // recover after reload or crash...
-    (function (localStorage) {
-        if (!localStorage || !localStorage['resBuffer']) {
+
+    window.addEventListener('message', (event) => {
+
+        console.log('Received message from popup:', event);
+
+        // recover after reload or crash...
+        let storageMs = JSON.parse(event.data)
+
+        console.log('event.data', event.data)
+
+        if (!storageMs || !storageMs['resBuffer']) {
             return; // for the very first run or after fatal crash
+        } else {
+            console.log('iframe storageMs', storageMs, storageMs['resBuffer'])
+
+            bigger = storageMs['bigger'] ? eval(storageMs['bigger']) : true;
+            toggleCalc();
+            if (+storageMs['ln']) {
+                ln = storageMs['ln'];
+                switchGrouping();
+            }
+            try {
+                if (storageMs['secondActive'].match(/false|null/) ? false : true) {
+                    keyDown(false, keyBoard['2nd']);
+                    doKey('2nd', true);
+                }
+                if (eval(storageMs['deg'])) doKey('Deg', true);
+                if (storageMs['memory']) {
+                    render(storageMs['memory']);
+                    doKey('m+', true);
+                }
+                render(storageMs['resBuffer']);
+                var buffStrX = storageMs['buffStr'].split(',');
+                for (var n = 0, m = buffStrX.length; n < m; n++) {
+                    if (buffStrX[n]) doKey(buffStrX[n], true);
+                }
+                render(storageMs['resBuffer']);
+                resBuffer = storageMs['resBuffer'];
+            } catch (e) {
+                console.log('e', e)
+                for (var n = sav.length; n--;) {
+                    // storageMs.removeItem(sav[n]);
+                    delete storageMs[sav[n]]
+                }
+                // window.parent.postMessage('clear', '*');
+            }
         }
-        bigger = localStorage['bigger'] ? eval(localStorage['bigger']) : true;
-        toggleCalc();
-        if (+localStorage['ln']) {
-            ln = localStorage['ln'];
-            switchGrouping();
-        }
-        try {
-            if (localStorage['secondActive'].match(/false|null/) ? false : true) {
-                keyDown(false, keyBoard['2nd']);
-                doKey('2nd', true);
-            }
-            if (eval(localStorage['deg'])) doKey('Deg', true);
-            if (localStorage['memory']) {
-                render(localStorage['memory']);
-                doKey('m+', true);
-            }
-            render(localStorage['resBuffer']);
-            var buffStrX = localStorage['buffStr'].split(',');
-            for (var n = 0, m = buffStrX.length; n < m; n++) {
-                if (buffStrX[n]) doKey(buffStrX[n], true);
-            }
-            render(localStorage['resBuffer']);
-            resBuffer = localStorage['resBuffer'];
-        } catch (e) {
-            for (var n = sav.length; n--;) {
-                localStorage.removeItem(sav[n]);
-            }
-        }
-    })(window.localStorage);
+        
+        storage = storageMs
+        console.log('storage', storage)
+
+    });
+
+
+    // recover after reload or crash...
+    // (function (localStorage) {
+    //     if (!localStorage || !localStorage['resBuffer']) {
+    //         return; // for the very first run or after fatal crash
+    //     }
+    //     bigger = localStorage['bigger'] ? eval(localStorage['bigger']) : true;
+    //     toggleCalc();
+    //     if (+localStorage['ln']) {
+    //         ln = localStorage['ln'];
+    //         switchGrouping();
+    //     }
+    //     try {
+    //         if (localStorage['secondActive'].match(/false|null/) ? false : true) {
+    //             keyDown(false, keyBoard['2nd']);
+    //             doKey('2nd', true);
+    //         }
+    //         if (eval(localStorage['deg'])) doKey('Deg', true);
+    //         if (localStorage['memory']) {
+    //             render(localStorage['memory']);
+    //             doKey('m+', true);
+    //         }
+    //         render(localStorage['resBuffer']);
+    //         var buffStrX = localStorage['buffStr'].split(',');
+    //         for (var n = 0, m = buffStrX.length; n < m; n++) {
+    //             if (buffStrX[n]) doKey(buffStrX[n], true);
+    //         }
+    //         render(localStorage['resBuffer']);
+    //         resBuffer = localStorage['resBuffer'];
+    //     } catch (e) {
+    //         for (var n = sav.length; n--;) {
+    //             localStorage.removeItem(sav[n]);
+    //         }
+    //     }
+    // })(window.localStorage);
+
 
     // ---------------- event listeners keys ---------------- //
 
@@ -386,7 +442,7 @@
 
     function saveState() {
         for (var n = sav.length; n--;) {
-            localStorage[sav[n]] = eval(sav[n]);
+            storage[sav[n]] = eval(sav[n]);
         }
     }
 
@@ -400,7 +456,8 @@
         if (doIt) {
             bigger = !bigger;
         }
-        localStorage['bigger'] = bigger;
+        eval(sav[n])
+        storage['bigger'] = bigger;
         Calc.className = bigger ?
             cName.replace(' calc-small', '') :
             cName + ' calc-small';
@@ -415,7 +472,7 @@
         }
         lnButton.firstChild.data = !ln ? '.' : ln === 1 ? ',' : ln === 2 ? ',.' : '.,';
         render(resBuffer);
-        localStorage['ln'] = ln;
+        storage['ln'] = ln;
     }
 
     function render(val, inp) {
@@ -478,9 +535,10 @@
             displayStyle.fontSize = '23px';
         } else if (screenDigitSize > 15) {
             displayStyle.fontSize = '26px';
-        }else {
+        } else {
             displayStyle.fontSize = '29px';
         }
+        window.parent.postMessage(storage, '*');
     }
 
     function doKey(text, alt) {

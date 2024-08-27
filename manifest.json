@@ -32,7 +32,7 @@
     ],
     "sandbox": {
         "pages": [
-            "popup.html"
+            "calc.html"
         ]
     },
     "content_security_policy": {
