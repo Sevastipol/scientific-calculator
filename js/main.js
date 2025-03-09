@@ -136,93 +136,69 @@
     calculator[0] = new Calculator();
 
 
+    // listen for messages from the parent window popup.html 
     window.addEventListener('message', (event) => {
 
-        console.log('Received message from popup:', event);
+        // listen for paste event from parent
+        if (event.data?.type === 'paste') {
+            const pastedText = event.data.text;
 
-        // recover after reload or crash...
-        let storageMs = JSON.parse(event.data)
+            render(parseFloat(pastedText + '') + '');
+            calculator[brackets].curr = true;
+            keyBoard['AC'].children[0].firstChild.data = 'C';
+            if (frozenKey) freezeKey(frozenKey, true);
+            notification.innerHTML = 'Paste';
+            fade(notification);
 
-        console.log('event.data', event.data)
+            // handle storage data from parent
+        } else if (event.data?.type === 'storage') {
 
-        if (!storageMs || !storageMs['resBuffer']) {
-            return; // for the very first run or after fatal crash
-        } else {
-            console.log('iframe storageMs', storageMs, storageMs['resBuffer'])
-
-            bigger = storageMs['bigger'] ? eval(storageMs['bigger']) : true;
-            toggleCalc();
-            if (+storageMs['ln']) {
-                ln = storageMs['ln'];
-                switchGrouping();
-            }
             try {
-                if (storageMs['secondActive'].match(/false|null/) ? false : true) {
-                    keyDown(false, keyBoard['2nd']);
-                    doKey('2nd', true);
+                // recover after reload or crash...
+                const storageMs = JSON.parse(event.data.text);
+
+                if (!storageMs || !storageMs['resBuffer']) {
+                    return; // for the very first run or after fatal crash
+                } else {
+
+                    bigger = storageMs['bigger'] ? eval(storageMs['bigger']) : true;
+                    toggleCalc();
+                    if (+storageMs['ln']) {
+                        ln = storageMs['ln'];
+                        switchGrouping();
+                    }
+                    try {
+                        if (storageMs['secondActive']) {
+                            keyDown(false, keyBoard['2nd']);
+                            doKey('2nd', true);
+                        }
+                        if (eval(storageMs['deg'])) doKey('Deg', true);
+                        if (storageMs['memory']) {
+                            render(String(storageMs['memory']));
+                            doKey('m+', true);
+                        }
+                        render(storageMs['resBuffer']);
+                        var buffStrX = String(storageMs['buffStr']).split(',');
+                        for (var n = 0, m = buffStrX.length; n < m; n++) {
+                            if (buffStrX[n]) doKey(buffStrX[n], true);
+                        }
+                        render(storageMs['resBuffer']);
+                        resBuffer = storageMs['resBuffer'];
+                    } catch (e) {
+                        console.log('error', e)
+                        for (var n = sav.length; n--;) {
+                            delete storageMs[sav[n]]
+                        }
+                    }
                 }
-                if (eval(storageMs['deg'])) doKey('Deg', true);
-                if (storageMs['memory']) {
-                    render(storageMs['memory']);
-                    doKey('m+', true);
-                }
-                render(storageMs['resBuffer']);
-                var buffStrX = storageMs['buffStr'].split(',');
-                for (var n = 0, m = buffStrX.length; n < m; n++) {
-                    if (buffStrX[n]) doKey(buffStrX[n], true);
-                }
-                render(storageMs['resBuffer']);
-                resBuffer = storageMs['resBuffer'];
+
+                storage = storageMs
             } catch (e) {
-                console.log('e', e)
-                for (var n = sav.length; n--;) {
-                    // storageMs.removeItem(sav[n]);
-                    delete storageMs[sav[n]]
-                }
-                // window.parent.postMessage('clear', '*');
+                console.log('error', e)
             }
         }
-        
-        storage = storageMs
-        console.log('storage', storage)
-
     });
 
-
-    // recover after reload or crash...
-    // (function (localStorage) {
-    //     if (!localStorage || !localStorage['resBuffer']) {
-    //         return; // for the very first run or after fatal crash
-    //     }
-    //     bigger = localStorage['bigger'] ? eval(localStorage['bigger']) : true;
-    //     toggleCalc();
-    //     if (+localStorage['ln']) {
-    //         ln = localStorage['ln'];
-    //         switchGrouping();
-    //     }
-    //     try {
-    //         if (localStorage['secondActive'].match(/false|null/) ? false : true) {
-    //             keyDown(false, keyBoard['2nd']);
-    //             doKey('2nd', true);
-    //         }
-    //         if (eval(localStorage['deg'])) doKey('Deg', true);
-    //         if (localStorage['memory']) {
-    //             render(localStorage['memory']);
-    //             doKey('m+', true);
-    //         }
-    //         render(localStorage['resBuffer']);
-    //         var buffStrX = localStorage['buffStr'].split(',');
-    //         for (var n = 0, m = buffStrX.length; n < m; n++) {
-    //             if (buffStrX[n]) doKey(buffStrX[n], true);
-    //         }
-    //         render(localStorage['resBuffer']);
-    //         resBuffer = localStorage['resBuffer'];
-    //     } catch (e) {
-    //         for (var n = sav.length; n--;) {
-    //             localStorage.removeItem(sav[n]);
-    //         }
-    //     }
-    // })(window.localStorage);
 
 
     // ---------------- event listeners keys ---------------- //
@@ -443,6 +419,7 @@
     function saveState() {
         for (var n = sav.length; n--;) {
             storage[sav[n]] = eval(sav[n]);
+            window.parent.postMessage({ command: 'set-storage', storage }, '*');
         }
     }
 
@@ -538,7 +515,6 @@
         } else {
             displayStyle.fontSize = '29px';
         }
-        window.parent.postMessage(storage, '*');
     }
 
     function doKey(text, alt) {
@@ -619,6 +595,7 @@
         } else if (key.match(/^C|AC/)) {
             render(calculator[brackets].init(key));
             hold.textContent = '';
+
         } else if (key.match(/^[+|–|÷|×|-|\/|*|yx|x√y|%|E]+$/) && key !== '√') {
             render(calculator[brackets].calc(key, dispVal));
         } else {
@@ -760,3 +737,5 @@
     window.addEventListener("load", signChanger);
 
 })(window);
+
+// window.parent.postMessage({ command: 'clear-storage' }, '*');

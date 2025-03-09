@@ -1,49 +1,27 @@
+const iframe = document.getElementById('calc-iframe');
 
-
-
-
-
+// listen for messages from the iframe
 window.addEventListener('message', async (event) => {
-    console.log('Received message from Iframe:', event.data);
-    if (event.data == 'clear') {
+    if (event.data?.command == 'clear-storage') {
         chrome.storage.local.clear();
-    } else {
-
-        await chrome.storage.local.set(event.data)
+    } else if (event.data?.command == 'set-storage') {
+        await chrome.storage.local.set(event.data.storage);
     }
 });
 
-const iframe = document.getElementById('calc-iframe');
+
+// pass paste event to the iframe
+document.addEventListener('paste', function (e) {
+    // Get clipboard data
+    const clipboardData = e.clipboardData || window.clipboardData;
+    const pastedText = clipboardData.getData('text/plain');
+    iframe.contentWindow.postMessage({ type: 'paste', text: pastedText }, '*');
+});
 
 
-// chrome.storage.local.get(null, function (result) {
-//     console.log('result', result)
-
-//     if (!result) {
-//         chrome.storage.local.set({}, function () {
-//             console.log('new storage')
-//             iframe.contentWindow.postMessage({}, '*');
-//             // Data saved successfully
-//         });
-//     } else {
-//         iframe.contentWindow.postMessage(result, '*');
-//     }
-
-// });
-
-
+// pass storage data to the iframe
 iframe.addEventListener('load', () => {
     chrome.storage.local.get(['resBuffer', 'bigger', 'ln', 'secondActive', 'deg', 'memory', 'buffStr'], function (result) {
-        console.log('result', result);
-        iframe.contentWindow.postMessage(JSON.stringify(result), '*');
-        // if (!result) {
-        //     chrome.storage.local.set({}, function () {
-        //         console.log('new storage');
-        //         iframe.contentWindow.postMessage({}, '*');
-        //         // Data saved successfully
-        //     });
-        // } else {
-        //     iframe.contentWindow.postMessage(result, '*');
-        // }
+        iframe.contentWindow.postMessage({ type: 'storage', text: JSON.stringify(result) }, '*');
     });
 });

@@ -6,7 +6,7 @@
     "author": "Raad Altaie",
     "action": {
         "default_title": "Calculator",
-        "default_popup": "popup-wrapper.html",
+        "default_popup": "popup.html",
         "default_icon": "icon.png"
     },
     "icons": {
