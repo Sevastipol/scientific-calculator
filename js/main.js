@@ -193,6 +193,7 @@
                 }
 
                 storage = storageMs
+                changeRadDegSign();
             } catch (e) {
                 console.log('error', e)
             }
@@ -720,21 +721,18 @@
     }
 
     // ---------------- add-on (sign (Deg/rad) changer) ---------------- //
-
     var button = document.getElementById("rad");
     var sign = document.getElementsByClassName("sign")[0];
 
-    function signChanger() {
-
-
+    function changeRadDegSign() {
         if (button.getElementsByTagName("div")[0].innerText == "Rad") {
             sign.innerText = "360º";
         } else if (button.getElementsByTagName("div")[0].innerText == "Deg") {
             sign.innerText = "2π";
         }
     };
-    button.addEventListener("click", signChanger);
-    window.addEventListener("load", signChanger);
+    button.addEventListener("click", changeRadDegSign);
+    window.addEventListener("load", changeRadDegSign);
 
 })(window);
 
