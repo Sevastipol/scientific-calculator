@@ -20,15 +20,19 @@
     "permissions": [
         "storage"
     ],
+    "background": {
+        "service_worker": "js/background.js"
+    },
     "commands": {
-        "_execute_action": {
+        "open_popup": {
             "suggested_key": {
-                "default": "Alt+C",
-                "windows": "Alt+C",
-                "mac": "Alt+C",
-                "chromeos": "Alt+C",
-                "linux": "Alt+C"
-            }
+                "default": "Alt+S",
+                "windows": "Alt+S",
+                "mac": "Alt+S",
+                "chromeos": "Alt+S",
+                "linux": "Alt+S"
+            },
+            "description": "Open Scientific Calculator"
         }
     },
     "sandbox": {
