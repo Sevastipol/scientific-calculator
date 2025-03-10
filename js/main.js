@@ -737,3 +737,9 @@
 })(window);
 
 // window.parent.postMessage({ command: 'clear-storage' }, '*');
+
+
+document.querySelector('.logo').addEventListener('click', function () {
+    // send msg to to the options page for the extension
+    window.parent.postMessage({ command: 'open-options' }, '*');
+});

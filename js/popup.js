@@ -12,6 +12,8 @@ window.addEventListener('message', (event) => {
                 localStorage.setItem(key, JSON.stringify(event.data.storage[key]));
             }
         }
+    } else if (event.data?.command == 'open-options') {
+        chrome.runtime.openOptionsPage();
     }
 });
 

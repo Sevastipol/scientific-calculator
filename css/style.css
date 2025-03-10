@@ -40,6 +40,7 @@ html {
     font-family: 'Play', 'Russo One', sans-serif;
     font-size: 1.4em;
     color: #acb4c1;
+    cursor: pointer;
     -webkit-user-select: none;
 }
 
