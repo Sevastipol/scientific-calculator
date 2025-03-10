@@ -103,7 +103,7 @@ html {
     outline-width: 5px;
 }
 
-.calc-hold{
+.calc-hold {
     position: absolute;
     z-index: 1;
     right: 8px;
@@ -259,6 +259,24 @@ html {
     margin: 0px;
 }
 
-.calc-active{
-    box-shadow: 0px 0px 3px #91a4b5;
+
+
+.calc-active,
+.calc-active:hover {
+    border: 2px solid #c86f7870;
+    background: #3e4f5f;
+}
+
+.calc-active:hover {
+    background: #405263;
+}
+
+.trigo-keys.calc-active,
+.trigo-keys.calc-active:hover {
+    border: 1px solid #c86f789c;
+    background: #1f333c;
+}
+
+.trigo-keys.calc-active:hover {
+    background: #294450;
 }
