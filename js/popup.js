@@ -1,14 +1,19 @@
 const iframe = document.getElementById('calc-iframe');
 
 // listen for messages from the iframe
-window.addEventListener('message', async (event) => {
+window.addEventListener('message', (event) => {
     if (event.data?.command == 'clear-storage') {
-        chrome.storage.local.clear();
+        // Clear localStorage
+        localStorage.clear();
     } else if (event.data?.command == 'set-storage') {
-        await chrome.storage.local.set(event.data.storage);
+        // Set values in localStorage
+        for (const key in event.data.storage) {
+            if (event.data.storage.hasOwnProperty(key)) {
+                localStorage.setItem(key, JSON.stringify(event.data.storage[key]));
+            }
+        }
     }
 });
-
 
 // pass paste event to the iframe
 document.addEventListener('paste', function (e) {
@@ -18,10 +23,19 @@ document.addEventListener('paste', function (e) {
     iframe.contentWindow.postMessage({ type: 'paste', text: pastedText }, '*');
 });
 
-
 // pass storage data to the iframe
 iframe.addEventListener('load', () => {
-    chrome.storage.local.get(['resBuffer', 'bigger', 'ln', 'secondActive', 'deg', 'memory', 'buffStr'], function (result) {
-        iframe.contentWindow.postMessage({ type: 'storage', text: JSON.stringify(result) }, '*');
+    // Get values from localStorage
+    const keys = ['resBuffer', 'bigger', 'ln', 'secondActive', 'deg', 'memory', 'buffStr'];
+    const storageData = {};
+
+    keys.forEach(key => {
+        const item = localStorage.getItem(key);
+        if (item !== null) {
+            storageData[key] = JSON.parse(item);
+        }
     });
+
+    // Pass data to iframe
+    iframe.contentWindow.postMessage({ type: 'storage', text: JSON.stringify(storageData) }, '*');
 });
