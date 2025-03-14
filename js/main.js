@@ -198,6 +198,95 @@
                 console.log('error', e)
             }
         }
+        // handle key events from parent
+        else if (event.data?.type === 'keydown' || event.data?.type === 'keypress' || event.data.type === 'keyup') {
+            const { key, keyCode, altKey, ctrlKey, shiftKey, metaKey } = event.data;
+
+            // Handle keypress event
+            if (event.data.type === 'keypress') {
+
+                let key = keyCode,
+                    holdKey = hold.textContent,
+                    keyMatch = (',|.|-|–|/|÷|*|×|#|+/–|x|x!|E|EE|e|ex| |2nd|r|x√y|R|√|p|π|^|yx|\'|yx|"|yx|m|mr|v|mc|b|m+|n|m-|' +
+                        's|sin|c|cos|t|tan|S|sin-1|C|cos-1|T|tan-1|d|Deg|°|Deg|l|ln|L|log|\\|1/x|X|2x').split('|'),
+                    keyMatchHold = ('sin|sinh|cos|cosh|tan|tanh|m-|Rand|Deg|Rand|sin-1|sinh-1|cos-1|cosh-1|tan-1|tanh-1|' +
+                        '1|1/x|2|x2|3|x3|x√y|√|ln|log2|ex|2x').split('|');
+
+                if (key === 13) key = 61;
+                key = String.fromCharCode(key);
+                for (var n = 0, m = keyMatch.length; n < m; n = n + 2)
+                    if (key === keyMatch[n]) {
+                        key = key.replace(key, keyMatch[n + 1]);
+                        break
+                    }
+                if (holdKey) {
+                    for (var n = 0, m = keyMatchHold.length; n < m; n = n + 2)
+                        if (key == keyMatchHold[n]) {
+                            key = key.replace(key, keyMatchHold[n + 1]);
+                            break
+                        }
+                    hold.textContent = '';
+                }
+                if ((key === 'h' || key === 'H') && !holdKey) hold.textContent = 'hold';
+                if (key === 'G' && holdKey) switchGrouping(true);
+                if (!keyBoard[key]) return false;
+                if ((key.match(/-1$|log2$|2x$/) && !secondActive) || (key.match(/h$|n$|cos$|ex$/) && secondActive)) {
+                    keyDown(false, keyBoard['2nd']);
+                    doKey('2nd', true);
+                }
+                keyDown(false, keyBoard[key]);
+                doKey(key, true);
+            }
+
+            // Handle keydown event
+            if (event.data.type === 'keydown') {
+
+                var str = resBuffer.replace(/\s/g, ''),
+                    strLen = str.split('').length - 1;
+
+                toggleOptions();
+                if (keyCode === 8 && calculator[brackets].curr !== true &&
+                    calculator[brackets].curr !== 'funk' && str !== '0') {
+                    e.preventDefault();
+                    while (buffStr.length && !keyBoard[buffStr[buffStr.length - 1]]) { // bull shit key(s)
+                        buffStr.pop();
+                    }
+                    if (buffStr[buffStr.length - 1] === '+/–') {
+                        doKey('+/–', true);
+                        buffStr.pop();
+                    } // +/-
+                    else if (resBuffer.match(/\-\d$/) || resBuffer.match(/^\d$/)) {
+                        buffStr.pop();
+                        doKey('C', true);
+                        render('0');
+                    } else {
+                        render(str.substring(0, strLen), true);
+                    }
+                    buffStr.pop();
+                    if (buffStr[buffStr.length - 1] === '.') {
+                        render(str.substring(0, strLen - 1));
+                        buffStr.pop()
+                    }
+                }
+                if (keyCode === 220) {
+                    keyDown(false, keyBoard['xy']);
+                }
+                if (keyCode === 46 || (keyCode == 8 && shiftKey)) {
+                    keyDown(false, keyBoard['AC']);
+                    doKey(keyBoard['AC'].textContent, true);
+                    buffStr.pop(); // Raad added delete function from Keyborad
+                    doKey('C', true);
+                    render('0');
+                }
+            }
+
+            // Handle keyup event
+            if (event.data.type === 'keyup') {
+                keyUp();
+                saveState();
+            }
+        }
+
     });
 
 
@@ -379,6 +468,7 @@
     // ------------------- event related functions ------------------ //
 
     function keyDown(e, obj) { // works for mouse and key
+
         var event = e || window.event,
             target = obj || getTargetKey(event.target),
             keyText = target.textContent.replace(/\s*/g, ''),

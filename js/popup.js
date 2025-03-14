@@ -17,6 +17,24 @@ window.addEventListener('message', (event) => {
     }
 });
 
+
+// Pass keyboard events to the iframe
+['keydown', 'keyup', 'keypress'].forEach(eventType => {
+    document.addEventListener(eventType, function (e) {
+        const { key, keyCode, altKey, ctrlKey, shiftKey, metaKey } = e;
+        iframe.contentWindow.postMessage({
+            type: eventType,
+            key,
+            keyCode,
+            altKey,
+            ctrlKey,
+            shiftKey,
+            metaKey
+        }, '*');
+    });
+});
+
+
 // pass paste event to the iframe
 document.addEventListener('paste', function (e) {
     // Get clipboard data
