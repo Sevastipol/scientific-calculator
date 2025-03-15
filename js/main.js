@@ -247,7 +247,7 @@
                 toggleOptions();
                 if (keyCode === 8 && calculator[brackets].curr !== true &&
                     calculator[brackets].curr !== 'funk' && str !== '0') {
-                    e.preventDefault();
+
                     while (buffStr.length && !keyBoard[buffStr[buffStr.length - 1]]) { // bull shit key(s)
                         buffStr.pop();
                     }

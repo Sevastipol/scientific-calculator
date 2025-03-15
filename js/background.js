@@ -34,11 +34,19 @@ chrome.commands.onCommand.addListener(function (command) {
 });
 
 
-chrome.runtime.onInstalled.addListener(() => {
+chrome.runtime.onInstalled.addListener((details) => {
+
+    // check if it's new install
+    if (details.reason == "install") {
+        // Open the options page when the extension is installed
+        chrome.tabs.create({ url: chrome.runtime.getURL("options.html") });
+    }
+
+
     // Create "Open as Popup Window" menu item
     chrome.contextMenus.create({
         id: "open-popup",
-        title: "Open in Detached Mode",
+        title: "Detached Mode",
         contexts: ["action"] // This will make it appear when clicking the extension icon
     });
 });
