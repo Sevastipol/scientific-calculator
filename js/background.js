@@ -24,6 +24,33 @@ function createPopupWindow(popupWidth, popupHeight) {
 }
 
 
+function openCalculatorInDetachedMode() {
+    // Check if the popup is already open
+    chrome.windows.getAll({ windowTypes: ["popup"] }, (windows) => {
+        let foundPopup = false;
+
+        // Iterate through all windows to check if any window matches the target dimensions
+        windows.forEach(window => {
+            if (window.width === popupWidth && window.height === popupHeight) {
+                foundPopup = true;
+                chrome.windows.update(window.id, { focused: true });
+            }
+
+            // After checking all tabs, if no popup is found, create a new one
+            if (!foundPopup && window === windows[windows.length - 1]) {
+                createPopupWindow(popupWidth, popupHeight);
+            }
+        });
+
+        // If no windows are open, create the popup window
+        if (windows.length === 0) {
+            createPopupWindow(popupWidth, popupHeight);
+        }
+    });
+}
+
+
+// Listen for commands
 chrome.commands.onCommand.addListener(function (command) {
     if (command === "open_popup") {
         chrome.action.openPopup()
@@ -34,8 +61,8 @@ chrome.commands.onCommand.addListener(function (command) {
 });
 
 
+// Listen for the extension being installed
 chrome.runtime.onInstalled.addListener((details) => {
-
     // check if it's new install
     if (details.reason == "install") {
         // Open the options page when the extension is installed
@@ -55,30 +82,7 @@ chrome.runtime.onInstalled.addListener((details) => {
 // Listen for clicks on the context menu items
 chrome.contextMenus.onClicked.addListener((info) => {
     if (info.menuItemId === "open-popup") {
-
-        // Check if the popup is already open
-        chrome.windows.getAll({ windowTypes: ["popup"] }, (windows) => {
-            let foundPopup = false;
-
-            // Iterate through all windows to check if any window matches the target dimensions
-            windows.forEach(window => {
-                if (window.width === popupWidth && window.height === popupHeight) {
-                    foundPopup = true;
-                    chrome.windows.update(window.id, { focused: true });
-                }
-
-                // After checking all tabs, if no popup is found, create a new one
-                if (!foundPopup && window === windows[windows.length - 1]) {
-                    createPopupWindow(popupWidth, popupHeight);
-                }
-
-            });
-
-            // If no windows are open, create the popup window
-            if (windows.length === 0) {
-                createPopupWindow(popupWidth, popupHeight);
-            }
-        });
+        openCalculatorInDetachedMode();
     }
 });
 

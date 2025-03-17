@@ -1,13 +1,13 @@
 {
     "manifest_version": 3,
     "name": "Scientific Calculator",
-    "version": "1.7.3",
+    "version": "1.7.4",
     "author": "Raad Altaie",
     "description": "Awesome Scientific Calculator for Google Chrome",
     "action": {
         "default_title": "Calculator",
         "default_popup": "popup.html",
-        "default_icon": "icon.png"
+        "default_icon": "imgs/icon.png"
     },
     "options_page": "options.html",
     "options_ui": {
@@ -15,7 +15,7 @@
         "open_in_tab": true
     },
     "icons": {
-        "128": "icon.png"
+        "128": "imgs/icon.png"
     },
     "permissions": [
         "contextMenus",
