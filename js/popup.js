@@ -59,18 +59,3 @@ iframe.addEventListener('load', () => {
     // Pass data to iframe
     iframe.contentWindow.postMessage({ type: 'storage', text: JSON.stringify(storageData) }, '*');
 });
-
-
-// adjust popup size
-window.onload = function() {
-    // Measure the content of the popup (including any iframe)
-    const contentWidth = document.documentElement.scrollWidth;
-    const contentHeight = document.documentElement.scrollHeight;
-
-    // Send the dimensions back to the background script
-    chrome.runtime.sendMessage({
-        action: "resizePopup",
-        width: contentWidth,
-        height: contentHeight
-    });
-};

@@ -1,7 +1,15 @@
 let popupWidth = 387;
 let popupHeight = 555;
 
-function createPopupWindow(popupWidth, popupHeight) {
+chrome.runtime.getPlatformInfo(function (info) {
+    // Output might be 'win', 'mac', 'linux', etc.
+    if (info.os === 'win') {
+        popupWidth = 416;
+        popupHeight = 577;
+    }
+});
+
+function createPopupWindow() {
     chrome.system.display.getInfo((displayInfo) => {
         const displayWidth = displayInfo[0].workArea.width;
         const displayHeight = displayInfo[0].workArea.height;
@@ -38,30 +46,17 @@ function openCalculatorInDetachedMode() {
 
             // After checking all tabs, if no popup is found, create a new one
             if (!foundPopup && window === windows[windows.length - 1]) {
-                createPopupWindow(popupWidth, popupHeight);
+                createPopupWindow();
             }
         });
 
         // If no windows are open, create the popup window
         if (windows.length === 0) {
-            createPopupWindow(popupWidth, popupHeight);
+            createPopupWindow();
         }
     });
 }
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    console.log('sender', sender)
-    if (request.action === "resizePopup" && sender.tab) {
-        popupWidth = request.width;
-        popupHeight = request.height + 27; // 27 for offset
-
-        // Resize the popup window to match the content
-        chrome.windows.update(sender.tab.windowId, {
-            width: popupWidth,
-            height: popupHeight
-        });
-    }
-});
 
 
 // Listen for commands
