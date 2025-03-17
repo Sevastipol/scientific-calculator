@@ -1,5 +1,5 @@
-const popupWidth = 387;
-const popupHeight = 555;
+let popupWidth = 387;
+let popupHeight = 555;
 
 function createPopupWindow(popupWidth, popupHeight) {
     chrome.system.display.getInfo((displayInfo) => {
@@ -48,6 +48,20 @@ function openCalculatorInDetachedMode() {
         }
     });
 }
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    console.log('sender', sender)
+    if (request.action === "resizePopup" && sender.tab) {
+        popupWidth = request.width;
+        popupHeight = request.height + 27; // 27 for offset
+
+        // Resize the popup window to match the content
+        chrome.windows.update(sender.tab.windowId, {
+            width: popupWidth,
+            height: popupHeight
+        });
+    }
+});
 
 
 // Listen for commands
