@@ -4,8 +4,8 @@ let popupHeight = 555;
 chrome.runtime.getPlatformInfo(function (info) {
     // Output might be 'win', 'mac', 'linux', etc.
     if (info.os === 'win') {
-        popupWidth = 416;
-        popupHeight = 577;
+        popupWidth = 402;
+        popupHeight = 568;
     }
 });
 
