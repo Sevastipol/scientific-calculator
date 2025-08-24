@@ -1,31 +1,48 @@
 {
-    "manifest_version": 2,
+    "manifest_version": 3,
     "name": "Scientific Calculator",
-    "version": "1.5.2",
-    "short_name": "Calculator",
+    "version": "1.7.4",
     "author": "Raad Altaie",
     "description": "Awesome Scientific Calculator for Google Chrome",
-    "offline_enabled": true,
-    "browser_action": {
+    "action": {
         "default_title": "Calculator",
-        "default_icon": "icon.png",
-        "default_popup": "popup.html"
+        "default_popup": "popup.html",
+        "default_icon": "imgs/icon.png"
     },
     "options_page": "options.html",
-
+    "options_ui": {
+        "page": "options.html",
+        "open_in_tab": true
+    },
     "icons": {
-        "128": "icon128.png"
+        "128": "imgs/icon.png"
+    },
+    "permissions": [
+        "contextMenus",
+        "system.display"
+    ],
+    "background": {
+        "service_worker": "js/background.js"
     },
     "commands": {
-        "_execute_browser_action": {
+        "open_popup": {
             "suggested_key": {
-                "default": "Alt+C",
-                "windows": "Alt+C",
-                "mac": "Alt+C",
-                "chromeos": "Alt+C",
-                "linux": "Alt+C"
-            }
+                "default": "Alt+S",
+                "windows": "Alt+S",
+                "mac": "Alt+S",
+                "chromeos": "Alt+S",
+                "linux": "Alt+S"
+            },
+            "description": "Open Scientific Calculator"
         }
     },
-    "content_security_policy": "script-src 'self' 'unsafe-eval' https://www.google-analytics.com; object-src 'self'"
+    "sandbox": {
+        "pages": [
+            "calc.html"
+        ]
+    },
+    "content_security_policy": {
+        "extension_pages": "script-src 'self'; object-src 'self';",
+        "sandbox": "sandbox allow-scripts allow-forms allow-popups allow-modals; script-src 'self' 'unsafe-inline' 'unsafe-eval'; child-src 'self';"
+    }
 }

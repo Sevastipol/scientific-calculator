@@ -10,9 +10,10 @@
 
 body,
 html {
+    padding: 0;
     margin: 0;
     padding: 1px;
-    background: #fff;
+    padding-bottom: 0;
 }
 
 #calculator {
@@ -21,7 +22,7 @@ html {
     margin: auto;
     border: 1px solid #000000;
     background: #3a5872;
-    box-shadow: 0px 0px 40px #000;
+    box-shadow: 0px 0px 40px rgb(22, 22, 22, 0.5);
     border: 2px solid #4d5368;
     border-top-left-radius: 1em;
     border-top-right-radius: 1em;
@@ -39,6 +40,7 @@ html {
     font-family: 'Play', 'Russo One', sans-serif;
     font-size: 1.4em;
     color: #acb4c1;
+    cursor: pointer;
     -webkit-user-select: none;
 }
 
@@ -102,7 +104,7 @@ html {
     outline-width: 5px;
 }
 
-.calc-hold{
+.calc-hold {
     position: absolute;
     z-index: 1;
     right: 8px;
@@ -258,6 +260,24 @@ html {
     margin: 0px;
 }
 
-.calc-active{
-    box-shadow: 0px 0px 3px #91a4b5;
+
+
+.calc-active,
+.calc-active:hover {
+    border: 2px solid #c86f7870;
+    background: #3e4f5f;
+}
+
+.calc-active:hover {
+    background: #405263;
+}
+
+.trigo-keys.calc-active,
+.trigo-keys.calc-active:hover {
+    border: 1px solid #c86f789c;
+    background: #1f333c;
+}
+
+.trigo-keys.calc-active:hover {
+    background: #294450;
 }
